@@ -89,3 +89,54 @@ input, textarea {
 }
 input:focus, textarea:focus { border-color: var(--purple); }
 input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+/* Clerk dark theme overrides */
+.cl-rootBox { z-index: 9999 !important; }
+
+.cl-card,
+.cl-userButtonPopoverCard {
+  background: #18152a !important;
+  border: 1px solid rgba(108, 92, 231, 0.18) !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4) !important;
+  border-radius: 16px !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background: #211d35 !important;
+}
+
+.cl-userButtonPopoverActionButtonText {
+  color: #8b85a8 !important;
+}
+
+.cl-userButtonPopoverFooter {
+  display: none !important;
+}
+
+.cl-avatarBox {
+  border: 2px solid #6C5CE7 !important;
+  border-radius: 50% !important;
+}
+
+.cl-formButtonPrimary {
+  background: linear-gradient(135deg, #6C5CE7, #a29bfe) !important;
+  border-radius: 10px !important;
+}
+
+.cl-formFieldInput {
+  background: #211d35 !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  color: #f0eeff !important;
+  border-radius: 10px !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background: #211d35 !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 10px !important;
+  color: #f0eeff !important;
+}
+
+.cl-internal-b3fm6y {
+  background: #18152a !important;
+}

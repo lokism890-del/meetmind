@@ -1,0 +1,16 @@
+{
+  "name": "meetmind-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "@clerk/clerk-sdk-node": "^4.13.0"
+  }
+}

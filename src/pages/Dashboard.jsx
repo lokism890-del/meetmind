@@ -1,14 +1,7 @@
+import { useUser, useAuth } from '@clerk/clerk-react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import MeetingCard from '../components/MeetingCard';
-import { useUser } from '@clerk/clerk-react';
-
-const MOCK_MEETINGS = [
-  { id: '1', title: 'Q3 sales pipeline review', date: 'Today', duration: '48 min', attendees: 5, platform: 'zoom',  status: 'done' },
-  { id: '2', title: 'Product roadmap sync — Eng team', date: 'Today', duration: 'In progress', attendees: 3, platform: 'meet',  status: 'live' },
-  { id: '3', title: 'Investor update call — Series A', date: 'Tomorrow 10:00 AM', duration: '—', attendees: 4, platform: 'teams', status: 'upcoming' },
-  { id: '4', title: 'Customer onboarding — Acme Corp', date: 'Apr 29', duration: '32 min', attendees: 6, platform: 'zoom',  status: 'done' },
-  { id: '5', title: 'Weekly design review', date: 'Apr 28', duration: '55 min', attendees: 4, platform: 'meet',  status: 'done' },
-];
 
 const STATS = [
   { label: 'This week', value: '12', sub: 'meetings recorded' },
@@ -19,12 +12,48 @@ const STATS = [
 
 export default function Dashboard() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const firstName = user?.firstName || 'there';
+  const [meetings, setMeetings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchMeetings() {
+      try {
+        console.log('API URL:', import.meta.env.VITE_API_URL);
+        const token = await getToken();
+        console.log('Token obtained:', token ? 'yes' : 'no');
+        
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/meetings`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        console.log('Response status:', res.status);
+        
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log('Meetings loaded:', data.length);
+        setMeetings(data);
+      } catch (err) {
+        console.error('Fetch error:', err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchMeetings();
+  }, []);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar />
-
       <main style={{ maxWidth: 860, margin: '0 auto', padding: '2.5rem 1.5rem' }}>
 
         {/* Header */}
@@ -54,7 +83,7 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Connect calendar CTA — shown when no calendar connected */}
+        {/* Connect calendar CTA */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(108,92,231,0.12), rgba(0,206,201,0.06))',
           border: '1px solid rgba(108,92,231,0.25)',
@@ -85,9 +114,43 @@ export default function Dashboard() {
           <span style={{ fontSize: 13, color: 'var(--purple-light)', cursor: 'pointer' }}>View all</span>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {MOCK_MEETINGS.map(m => <MeetingCard key={m.id} meeting={m} />)}
-        </div>
+        {loading && (
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem' }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
+            Loading meetings...
+          </div>
+        )}
+
+        {error && (
+          <div style={{
+            textAlign: 'center', color: '#ff6b6b',
+            padding: '2rem', background: 'rgba(255,80,80,0.05)',
+            borderRadius: 12, border: '1px solid rgba(255,80,80,0.15)'
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>⚠️</div>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Failed to load meetings</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Error: {error}</div>
+          </div>
+        )}
+
+        {!loading && !error && meetings.length === 0 && (
+          <div style={{
+            textAlign: 'center', color: 'var(--text-muted)',
+            padding: '3rem', background: 'var(--surface)',
+            borderRadius: 12, border: '1px solid var(--border-soft)'
+          }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>🎙️</div>
+            <div style={{ fontFamily: 'Syne', fontWeight: 600, marginBottom: 8 }}>No meetings yet</div>
+            <div style={{ fontSize: 13 }}>Connect your calendar to start recording meetings automatically.</div>
+          </div>
+        )}
+
+        {!loading && !error && meetings.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {meetings.map(m => <MeetingCard key={m.id} meeting={m} />)}
+          </div>
+        )}
+
       </main>
     </div>
   );

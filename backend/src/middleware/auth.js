@@ -1,19 +1,16 @@
-import { createClerkClient } from '@clerk/backend';
+import pkg from '@clerk/backend';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+const { verifyToken } = pkg;
 
 export async function requireAuth(req, res, next) {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) return res.status(401).json({ error: 'No token provided' });
 
-    const payload = await clerk.verifyToken(token, {
-      authorizedParties: [
-        'https://meetmind-two.vercel.app',
-        'http://localhost:5173'
-      ]
+    const payload = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY
     });
 
     req.userId = payload.sub;

@@ -33,11 +33,11 @@ export default function Navbar() {
         <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16 }}>MeetMind</span>
       </div>
 
-      {/* Nav links */}
-      <div style={{ display: 'flex', gap: 4 }}>
-        <NavLink to="/dashboard" style={linkStyle}>Meetings</NavLink>
-        <NavLink to="/onboarding" style={linkStyle}>Connect Calendar</NavLink>
-      </div>
+     <div style={{ display: 'flex', gap: 4 }}>
+  <NavLink to="/dashboard" style={linkStyle}>Meetings</NavLink>
+  <NavLink to="/upload" style={linkStyle}>Upload</NavLink>
+  <NavLink to="/onboarding" style={linkStyle}>Connect Calendar</NavLink>
+</div>
 
       {/* User menu */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Meeting from './pages/Meeting';
 import Onboarding from './pages/Onboarding';
+import Upload from './pages/Upload';
 import './App.css';
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -51,9 +52,6 @@ export default function App() {
             color: '#f0eeff',
             borderRadius: '10px',
           },
-          socialButtonsBlockButton__google: {
-            background: '#211d35',
-          },
           dividerLine: {
             background: 'rgba(255,255,255,0.06)',
           },
@@ -77,9 +75,6 @@ export default function App() {
           },
           footerActionLink: {
             color: '#a29bfe',
-          },
-          identityPreviewText: {
-            color: '#f0eeff',
           },
           userButtonPopoverCard: {
             background: '#18152a',
@@ -109,6 +104,8 @@ export default function App() {
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/meeting/:id" element={<ProtectedRoute><Meeting /></ProtectedRoute>} />
+          <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+          <Route path="/live/:id" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>

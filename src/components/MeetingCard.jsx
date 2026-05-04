@@ -6,7 +6,13 @@ const STATUS_BADGE = {
   upcoming:  { label: 'Upcoming',   cls: 'badge-amber' },
   processing:{ label: 'Processing', cls: 'badge-purple' },
 };
-
+const handleClick = () => {
+  if (meeting.status === 'done') {
+    navigate(`/meeting/${meeting.id}`);
+  } else if (meeting.status === 'upcoming') {
+    navigate(`/live/${meeting.id}`);
+  }
+};
 const PLATFORM_ICON = {
   zoom:  '📹',
   meet:  '🟢',

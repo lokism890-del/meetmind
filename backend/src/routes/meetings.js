@@ -13,7 +13,7 @@ router.get('/', requireAuth, async (req, res) => {
       .from('meetings')
       .select('*')
       .eq('user_id', req.userId)
-      .order('start_time', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Supabase error:', error);
@@ -84,7 +84,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// PATCH update meeting status
+// PATCH update meeting
 router.patch('/:id', requireAuth, async (req, res) => {
   try {
     const { status, summary, transcript, action_items, decisions, duration_minutes } = req.body;
@@ -129,6 +129,44 @@ router.delete('/:id', requireAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('Route error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST ask a question about a meeting
+router.post('/:id/ask', requireAuth, async (req, res) => {
+  try {
+    const { question, transcript, summary } = req.body;
+    console.log('Asking question about meeting:', req.params.id);
+
+    const Groq = (await import('groq-sdk')).default;
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a helpful meeting assistant. Answer questions about this meeting based on the transcript and summary provided. Be concise and specific.
+          
+Summary: ${summary}
+
+Transcript:
+${transcript}`
+        },
+        {
+          role: 'user',
+          content: question
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 500,
+    });
+
+    console.log('Answer generated successfully');
+    res.json({ answer: completion.choices[0].message.content });
+  } catch (err) {
+    console.error('Ask error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

@@ -3,8 +3,7 @@ import supabase from '../supabase.js';
 import { requireAuth } from '../middleware/auth.js';
 import { transcribeAudio } from '../services/transcribe.js';
 import { summarizeMeeting } from '../services/summarize.js';
-import { sendMeetingSummary } from '../services/emailService.js';
-
+import { sendMeetingSummary } from '../services/emailService.js';  // ✅ CORRECT
 const router = express.Router();
 
 // POST /api/process — upload and process a meeting recording

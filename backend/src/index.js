@@ -33,18 +33,20 @@ app.use('/api/process', processRouter);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  console.log(`404: ${req.method} ${req.path}`);
+  res.status(404).json({ error: 'Route not found', path: req.path });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ error: 'Internal server error', message: err.message });
 });
 
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ MeetMind API running on port ${PORT}`);
+  console.log(`📅 Calendar routes loaded at /api/calendar`);
   console.log(`📧 Meeting reminder scheduler started`);
   console.log(`🔗 Accepting requests from: https://meetmind-two.vercel.app`);
   

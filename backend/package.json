@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-  "dev": "node --watch src/index.js",
-  "start": "node src/index.js"
-},
-"engines": {
-  "node": ">=20"
-},
-"dependencies": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
     "@clerk/backend": "^1.22.0",
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.105.1",

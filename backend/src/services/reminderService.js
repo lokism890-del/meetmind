@@ -1,5 +1,5 @@
 import { supabase } from '../supabase.js';
-import { sendMeetingReminder, sendMeetingStartedNotification } from './emailService.js';
+import { sendMeetingReminder, sendMeetingStartedNotification } from './emailServices.js';
 import { getUpcomingMeetings, extractVideoConferenceUrl } from './calendarService.js';
 
 let reminderInterval = null;

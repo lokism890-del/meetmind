@@ -1,8 +1,6 @@
-import pkg from '@clerk/backend';
+import { verifyToken } from '@clerk/backend';
 import dotenv from 'dotenv';
 dotenv.config();
-
-const { verifyToken } = pkg;
 
 export async function requireAuth(req, res, next) {
   try {
@@ -20,3 +18,5 @@ export async function requireAuth(req, res, next) {
     res.status(401).json({ error: 'Invalid token' });
   }
 }
+
+export default requireAuth;

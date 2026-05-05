@@ -104,7 +104,7 @@ export default function App() {
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/meeting/:id" element={<ProtectedRoute><Meeting /></ProtectedRoute>} />
-          <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+          <Route path="/Upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
           <Route path="/live/:id" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

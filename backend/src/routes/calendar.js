@@ -1,67 +1,86 @@
 import express from 'express';
 import { google } from 'googleapis';
-import supabase from '../supabase.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { supabase } from '../supabase.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Initialize the Google OAuth Client
+// Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.VITE_API_URL || 'http://localhost:3001'}/auth/google/callback`
+  process.env.GOOGLE_REDIRECT_URI
 );
 
-// 1. Triggered when the user clicks "Connect Calendar"
-router.get('/connect', (req, res) => {
-  const userId = req.query.userId;
-  if (!userId) return res.status(400).send('User ID is required');
-
-  const url = oauth2Client.generateAuthUrl({
+// Generate Google auth URL
+router.get('/auth-url', (req, res) => {
+  const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
-    prompt: 'consent',
     scope: [
-      'https://www.googleapis.com/auth/calendar.readonly', 
+      'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/calendar.events'
-    ],
-    state: userId // Pass the userId so we remember who they are when Google sends them back
+    ]
   });
-
-  res.redirect(url);
+  
+  res.json({ url: authUrl });
 });
 
-// 2. Triggered when Google sends the user back to your app
-router.get('/callback', async (req, res) => {
-  const { code, state: userId } = req.query;
-
+// Handle OAuth callback
+router.post('/callback', requireAuth, async (req, res) => {
   try {
-    // Exchange the code for actual access tokens
+    const { code } = req.body;
+    
+    // Exchange code for tokens
     const { tokens } = await oauth2Client.getToken(code);
     
-    // THE FIX: Use UPSERT instead of INSERT to prevent the "duplicate key" error!
-    const { error } = await supabase
-      .from('user_calendars')
-      .upsert({
-        user_id: userId,
-        google_token: tokens, 
-      }, { 
-        onConflict: 'user_id' // If this user_id already exists, just update their token!
-      });
-
-    if (error) {
-      console.error('Calendar callback error:', error);
-      return res.status(500).send('Failed to save calendar connection');
-    }
-
-    // Send the user back to the React dashboard with a success parameter
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}/dashboard?calendar=connected`);
+    // Store tokens in database
+    await supabase
+      .from('users')
+      .update({
+        google_access_token: tokens.access_token,
+        google_refresh_token: tokens.refresh_token,
+        calendar_connected: true
+      })
+      .eq('id', req.userId);
     
-  } catch (error) {
-    console.error('Error in Google callback:', error);
-    res.status(500).send('Authentication failed');
+    res.json({ success: true, message: 'Calendar connected!' });
+  } catch (err) {
+    console.error('OAuth callback error:', err);
+    res.status(500).json({ error: 'Failed to connect calendar' });
+  }
+});
+
+// Get upcoming meetings
+router.get('/upcoming-meetings', requireAuth, async (req, res) => {
+  try {
+    const { data: user } = await supabase
+      .from('users')
+      .select('google_access_token')
+      .eq('id', req.userId)
+      .single();
+    
+    if (!user?.google_access_token) {
+      return res.status(401).json({ error: 'Calendar not connected' });
+    }
+    
+    oauth2Client.setCredentials({
+      access_token: user.google_access_token
+    });
+    
+    const calendar = google.calendar('v3');
+    const response = await calendar.events.list({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      timeMin: new Date().toISOString(),
+      maxResults: 10,
+      singleEvents: true,
+      orderBy: 'startTime'
+    });
+    
+    res.json({ meetings: response.data.items || [] });
+  } catch (err) {
+    console.error('Fetch meetings error:', err);
+    res.status(500).json({ error: 'Failed to fetch meetings' });
   }
 });
 

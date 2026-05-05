@@ -1,5 +1,6 @@
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MeetingCard from '../components/MeetingCard';
 
@@ -13,6 +14,7 @@ const STATS = [
 export default function Dashboard() {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const navigate = useNavigate();
   const firstName = user?.firstName || 'there';
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,11 @@ export default function Dashboard() {
       }
     }
     fetchMeetings();
-  }, []);
+  }, [getToken]);
+
+  const handleConnectCalendar = () => {
+    navigate('/connect-calendar');
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -68,17 +74,27 @@ export default function Dashboard() {
 
         {/* Stats */}
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: 12, marginBottom: '2.5rem'
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 12,
+          marginBottom: '2.5rem'
         }}>
           {STATS.map(s => (
             <div key={s.label} style={{
-              background: 'var(--surface)', border: '1px solid var(--border-soft)',
-              borderRadius: 12, padding: '1rem 1.25rem'
+              background: 'var(--surface)',
+              border: '1px solid var(--border-soft)',
+              borderRadius: 12,
+              padding: '1rem 1.25rem'
             }}>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>{s.label}</div>
-              <div style={{ fontSize: 28, fontFamily: 'Syne', fontWeight: 700, marginBottom: 3 }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{s.sub}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
+                {s.label}
+              </div>
+              <div style={{ fontSize: 28, fontFamily: 'Syne', fontWeight: 700, marginBottom: 3 }}>
+                {s.value}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>
+                {s.sub}
+              </div>
             </div>
           ))}
         </div>
@@ -87,9 +103,14 @@ export default function Dashboard() {
         <div style={{
           background: 'linear-gradient(135deg, rgba(108,92,231,0.12), rgba(0,206,201,0.06))',
           border: '1px solid rgba(108,92,231,0.25)',
-          borderRadius: 14, padding: '1.25rem 1.5rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          gap: 16, marginBottom: '2rem', flexWrap: 'wrap'
+          borderRadius: 14,
+          padding: '1.25rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          marginBottom: '2rem',
+          flexWrap: 'wrap'
         }}>
           <div>
             <div style={{ fontFamily: 'Syne', fontWeight: 600, fontSize: 15, marginBottom: 4 }}>
@@ -99,11 +120,23 @@ export default function Dashboard() {
               MeetMind will automatically join your scheduled video calls.
             </div>
           </div>
-          <button style={{
-            background: 'var(--purple)', color: '#fff', border: 'none',
-            borderRadius: 9, padding: '10px 22px', fontSize: 14, fontWeight: 500,
-            flexShrink: 0
-          }}>
+          <button 
+            onClick={handleConnectCalendar}
+            style={{
+              background: 'var(--purple)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 9,
+              padding: '10px 22px',
+              fontSize: 14,
+              fontWeight: 500,
+              flexShrink: 0,
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#5b4fd0'}
+            onMouseLeave={(e) => e.target.style.background = 'var(--purple)'}
+          >
             Connect Google Calendar →
           </button>
         </div>
@@ -111,7 +144,9 @@ export default function Dashboard() {
         {/* Meetings list */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <h2 style={{ fontSize: 16, fontWeight: 600 }}>Recent meetings</h2>
-          <span style={{ fontSize: 13, color: 'var(--purple-light)', cursor: 'pointer' }}>View all</span>
+          <span style={{ fontSize: 13, color: 'var(--purple-light)', cursor: 'pointer' }}>
+            View all
+          </span>
         </div>
 
         {loading && (
@@ -123,9 +158,12 @@ export default function Dashboard() {
 
         {error && (
           <div style={{
-            textAlign: 'center', color: '#ff6b6b',
-            padding: '2rem', background: 'rgba(255,80,80,0.05)',
-            borderRadius: 12, border: '1px solid rgba(255,80,80,0.15)'
+            textAlign: 'center',
+            color: '#ff6b6b',
+            padding: '2rem',
+            background: 'rgba(255,80,80,0.05)',
+            borderRadius: 12,
+            border: '1px solid rgba(255,80,80,0.15)'
           }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>⚠️</div>
             <div style={{ fontWeight: 600, marginBottom: 4 }}>Failed to load meetings</div>
@@ -135,19 +173,28 @@ export default function Dashboard() {
 
         {!loading && !error && meetings.length === 0 && (
           <div style={{
-            textAlign: 'center', color: 'var(--text-muted)',
-            padding: '3rem', background: 'var(--surface)',
-            borderRadius: 12, border: '1px solid var(--border-soft)'
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            padding: '3rem',
+            background: 'var(--surface)',
+            borderRadius: 12,
+            border: '1px solid var(--border-soft)'
           }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🎙️</div>
-            <div style={{ fontFamily: 'Syne', fontWeight: 600, marginBottom: 8 }}>No meetings yet</div>
-            <div style={{ fontSize: 13 }}>Connect your calendar to start recording meetings automatically.</div>
+            <div style={{ fontFamily: 'Syne', fontWeight: 600, marginBottom: 8 }}>
+              No meetings yet
+            </div>
+            <div style={{ fontSize: 13 }}>
+              Connect your calendar to start recording meetings automatically.
+            </div>
           </div>
         )}
 
         {!loading && !error && meetings.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {meetings.map(m => <MeetingCard key={m.id} meeting={m} />)}
+            {meetings.map(m => (
+              <MeetingCard key={m.id} meeting={m} />
+            ))}
           </div>
         )}
 

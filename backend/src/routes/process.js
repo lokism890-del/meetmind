@@ -3,7 +3,7 @@ import supabase from '../supabase.js';
 import { requireAuth } from '../middleware/auth.js';
 import { transcribeAudio } from '../services/transcribe.js';
 import { summarizeMeeting } from '../services/summarize.js';
-import { sendMeetingSummary } from '../services/email.js';
+import { sendMeetingSummary } from '../services/emailService.js';
 
 const router = express.Router();
 

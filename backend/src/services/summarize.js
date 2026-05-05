@@ -1,61 +1,45 @@
-import 'dotenv/config';
-import { Groq } from 'groq-sdk';
-// rest of your code...
-// import Groq from 'groq-sdk';
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Groq } from 'groq-sdk';
+
+// Manually resolve the path to the .env file to avoid ES Module loading issues
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
+/**
+ * Generates a summary of the meeting transcript using AI.
+ * @param {string} transcript - The raw text from the meeting.
+ * @param {string} meetingTitle - The name of the meeting for context.
+ */
 export async function summarizeMeeting(transcript, meetingTitle) {
-  console.log('Summarizing meeting with Groq:', meetingTitle);
-
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
-    messages: [
-      {
-        role: 'user',
-        content: `You are an expert meeting summarizer. Analyze this meeting transcript and extract the key information.
-
-Meeting Title: ${meetingTitle}
-
-Transcript:
-${transcript}
-
-Please provide a JSON response with exactly this structure:
-{
-  "summary": "2-3 sentence overview of the meeting",
-  "decisions": ["decision 1", "decision 2"],
-  "action_items": [
-    {"owner": "Person name", "task": "what they need to do", "due": "timeframe if mentioned"}
-  ],
-  "key_topics": ["topic 1", "topic 2", "topic 3"]
-}
-
-Return ONLY the JSON, no other text, no markdown backticks.`
-      }
-    ],
-    temperature: 0.3,
-    max_tokens: 1000,
-  });
-
-  const text = completion.choices[0].message.content;
-  console.log('Groq response received');
-
   try {
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    console.log('Summary generated successfully');
-    return parsed;
-  } catch (err) {
-    console.error('Failed to parse summary JSON:', err);
-    return {
-      summary: text,
-      decisions: [],
-      action_items: [],
-      key_topics: []
-    };
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error("GROQ_API_KEY is missing from environment variables.");
+    }
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional assistant. Summarize the following meeting transcript into clear bullet points with key takeaways and action items."
+        },
+        { 
+          role: "user", 
+          content: `Meeting Title: ${meetingTitle}\n\nTranscript: ${transcript}` 
+        }
+      ],
+      model: "mixtral-8x7b-32768", // Using Mixtral for high-quality technical summaries
+      temperature: 0.5,
+    });
+
+    return completion.choices[0]?.message?.content || "No summary generated.";
+  } catch (error) {
+    console.error("❌ Summarization Error:", error.message);
+    throw error;
   }
 }

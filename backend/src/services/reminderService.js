@@ -1,4 +1,4 @@
-import { supabase } from '../supabase.js';
+import supabase from '../supabase.js';
 import { sendMeetingReminder, sendMeetingStartedNotification } from './emailService.js';
 import { getUpcomingMeetings, extractVideoConferenceUrl } from './calendarService.js';
 

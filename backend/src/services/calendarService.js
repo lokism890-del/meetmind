@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { supabase } from '../supabase.js';
+import supabase from '../supabase.js';
 
 const calendar = google.calendar('v3');
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import { google } from 'googleapis';
-import { supabase } from '../supabase.js';
+import supabase from '../supabase.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();

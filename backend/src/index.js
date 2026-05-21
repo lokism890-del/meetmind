@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import meetingsRouter from './routes/meetings.js';
 import calendarRouter from './routes/calendar.js';
 import processRouter from './routes/process.js';
-import { startReminderScheduler } from './services/reminders.js'; // ✅
+import { startReminderScheduler } from './services/reminderService.js';
 dotenv.config();
 
 const app = express();

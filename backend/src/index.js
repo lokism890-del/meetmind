@@ -29,8 +29,6 @@ app.get('/health', (req, res) => {
 app.use('/api/meetings', meetingsRouter);
 app.use('/api/calendar', calendarRouter);
 app.use('/api/process', processRouter);
-app.use('/api/calendar', calendarRouter);
-
 // 404 handler
 app.use((req, res) => {
   console.log(`404: ${req.method} ${req.path}`);
